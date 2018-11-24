@@ -5,7 +5,7 @@ and to create new path objects from the subdivided segments.<br>
 The new path xml Ids are inherited from the source path.<br><br>
 
 # Installation
-Copy split_bezier.py and split_bezier.inx in the user extension folder. The extension folder can be found from Edit->Preference dialog in the System option. You will need to restart inkscape after the files are copied.<br>
+Copy <i>split_bezier.py</i> and <i>split_bezier.inx</i> in the user extension folder. The extension folder can be found from Edit->Preference dialog in the System option. You will need to restart inkscape after the files are copied.<br>
 
 # Usage
 The 'Subdivide Path' effect is under Extensions->Modify Path menu. You can choose multiple paths and invokde the extension. Selecting the 'Break Apart' check box will create new paths from the subdivided segments. 
