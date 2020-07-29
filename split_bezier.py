@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 '''
 Inkscape extension to subdivide the selected bezier paths based on max length value or count
@@ -20,7 +20,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''
 
-import inkex, cubicsuperpath, bezmisc, simpletransform, sys
+import inkex
+from inkex import bezier
+from inkex.paths import CubicSuperPath
+import bezmisc
+import simpletransform
 import copy
 from math import ceil
 
@@ -65,25 +69,11 @@ class SubdividePathEffect(inkex.Effect):
 
     def __init__(self):
         inkex.Effect.__init__(self)
-
-        self.OptionParser.add_option('--maxLength', action = 'store',
-          type = 'float', dest = 'maxLength', default = '10',
-          help = 'Maximum Length of New Segments')
-
-        self.OptionParser.add_option('--unit', action = 'store',
-          type = 'string', dest = 'unit', default = 'mm',
-          help = 'Unit of Measurement')
-
-        self.OptionParser.add_option('--precision', action = 'store',
-          type = 'int', dest = 'precision', default = '5',
-          help = 'Number of significant digits')
-
-        self.OptionParser.add_option("--tab", action="store", 
-          type="string", dest="tab", default="sampling", help="Tab") 
-          
-        self.OptionParser.add_option("--separateSegs",
-                        action="store", type="inkbool", 
-                        dest="separateSegs", default=True)
+        self.arg_parser.add_argument('--maxLength', type = float, default = '10', help = 'Maximum Length of New Segments')
+        self.arg_parser.add_argument('--unit', default = 'mm', help = 'Unit of Measurement')
+        self.arg_parser.add_argument('--precision', type = int, default = '5', help = 'Number of significant digits')
+        self.arg_parser.add_argument("--tab", default="sampling", help="Tab") 
+        self.arg_parser.add_argument("--separateSegs", type=inkex.Boolean, default=True)
 
     def effect(self):
         
@@ -91,16 +81,15 @@ class SubdividePathEffect(inkex.Effect):
         separateSegs = self.options.separateSegs
         
         if(self.options.unit != 'perc' and self.options.unit != 'count'):
-            maxL = self.options.maxLength * self.unittouu('1'+self.options.unit)
+            maxL = self.options.maxLength * self.svg.unittouu('1'+self.options.unit)
             
         # ~ inkex.errormsg(_(str(maxL)))
         tolerance = 10 ** (-1 * self.options.precision)
         
-        selections = self.selected        
+        selections = self.svg.selected        
         pathNodes = self.document.xpath('//svg:path',namespaces=inkex.NSS)
 
-        paths = [(pathNode.get('id'), cubicsuperpath.parsePath(pathNode.get('d'))) \
-            for pathNode in  pathNodes if (pathNode.get('id') in selections.keys())]
+        paths = [(pathNode.get('id'), CubicSuperPath(pathNode.get('d'))) for pathNode in  pathNodes]
 
         if(len(paths) > 0):
             for key, cspath in paths:
@@ -112,8 +101,7 @@ class SubdividePathEffect(inkex.Effect):
                     newSegs = []
                     for j, seg in enumerate(part):
                                                 
-                        segL = bezmisc.bezierlengthSimpson((seg[0], seg[1], 
-                            seg[2], seg[3]), tolerance = tolerance)
+                        segL = bezmisc.bezierlengthSimpson((seg[0], seg[1], seg[2], seg[3]), tolerance = tolerance)
                             
                         if(maxL != None):
                             divL = maxL
@@ -133,8 +121,7 @@ class SubdividePathEffect(inkex.Effect):
                                 if(s == seg):
                                     sL = segL
                                 else:
-                                    sL = bezmisc.bezierlengthSimpson((s[0], s[1], 
-                                        s[2], s[3]), tolerance = tolerance)
+                                    sL = bezmisc.bezierlengthSimpson((s[0], s[1],  s[2], s[3]), tolerance = tolerance)
                                     
                                 if(floatCmpWithMargin(segL, coveredL + divL)):
                                     s2 = s
@@ -145,9 +132,8 @@ class SubdividePathEffect(inkex.Effect):
                                     else:
                                         t1L = segL - coveredL
                                         
-                                    t1 = bezmisc.beziertatlength((s[0], s[1], s[2], s[3]), 
-                                        l = t1L / sL , tolerance = tolerance)                
-                                    s1, s2 = bezmisc.beziersplitatt((s[0], s[1], s[2], s[3]), t1)
+                                    t1 = bezier.beziertatlength((s[0], s[1], s[2], s[3]),  l = t1L / sL , tolerance = tolerance)                
+                                    s1, s2 = bezier.beziersplitatt((s[0], s[1], s[2], s[3]), t1)
                                     coveredL += t1L                            
                                     newSegs.append(s1)
                                     s = s2
@@ -162,7 +148,7 @@ class SubdividePathEffect(inkex.Effect):
                 if(partsSplit or separateSegs):
                     elem = selections[key]
                     if(separateSegs):
-                        parent = self.getParentNode(elem)
+                        parent = elem.getparent()
                         idx = parent.index(elem)
                         parent.remove(elem)
                         allSegs = [seg for part in parts for seg in part]
@@ -171,13 +157,12 @@ class SubdividePathEffect(inkex.Effect):
                             cspath = getCubicSuperFromParts([[seg]])
                             newElem = copy.copy(elem)
                             oldId = newElem.get('id')
-                            newElem.set('d', cubicsuperpath.formatPath(cspath))
+                            newElem.set('d', CubicSuperPath(cspath))
                             newElem.set('id', oldId + str(idSuffix).zfill(5))
                             parent.insert(idx, newElem)
                             idSuffix += 1
                     else:
                         cspath = getCubicSuperFromParts(parts)
-                        elem.set('d', cubicsuperpath.formatPath(cspath))
+                        elem.set('d', CubicSuperPath(cspath))
                         
-effect = SubdividePathEffect()
-effect.affect()
+SubdividePathEffect().run()
