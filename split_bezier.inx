@@ -2,8 +2,6 @@
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
     <_name>Subdivide Path</_name>
     <id>subdivide.svg.bezier</id>
-    <dependency type="executable" location="extensions">subdivide_path.py</dependency>
-    <dependency type="executable" location="extensions">inkex.py</dependency>
     <param name="tab" type="notebook">
         <page name="subdividePath" _gui-text="Subdivide Path">
             <param name="maxLength" type="float" min = '0.001' max = '99999' _gui-text="Max Length / Subdiv Count:">10</param>
@@ -31,6 +29,6 @@
         </effects-menu>
    </effect>
     <script>
-        <command reldir="extensions" interpreter="python">subdivide_path.py</command>
+        <command reldir="extensions" interpreter="python">split_bezier.py</command>
     </script>
 </inkscape-extension>
