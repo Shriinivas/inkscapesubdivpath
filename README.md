@@ -1,4 +1,4 @@
-![Demo](https://github.com/Shriinivas/inkscapesubdivpath/blob/master/demo.gif)
+![Demo](https://github.com/Shriinivas/etc/blob/master/inkscapesubdivpath/illustrations/inkscape_subdivpaths_demo.gif)
 # Inkscape Extension For Subdiving Paths<br>
 This extension lets the user subdivide paths into new paths. <br>
 It's similar to the prebuilt 'Add Node' extension, with the additional ability to choose subdivision unit <br>
