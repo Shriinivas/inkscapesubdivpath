@@ -1,3 +1,4 @@
+### (Compatible with Inkscape versions 1.0 and 0.92)
 ![Demo](https://github.com/Shriinivas/etc/blob/master/inkscapesubdivpath/illustrations/inkscape_subdivpaths_demo.gif)
 # Inkscape Extension For Subdiving Paths<br>
 This extension lets the user subdivide paths into new paths. <br>
